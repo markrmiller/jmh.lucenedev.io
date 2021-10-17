@@ -1,0 +1,407 @@
+<!DOCTYPE html><html><head>
+      <title>async-profiler</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      
+        <script type="text/x-mathjax-config">
+          MathJax.Hub.Config({"extensions":["tex2jax.js"],"jax":["input/TeX","output/HTML-CSS"],"messageStyle":"none","tex2jax":{"processEnvironments":false,"processEscapes":true,"inlineMath":[["$","$"],["\\(","\\)"]],"displayMath":[["$$","$$"],["\\[","\\]"]]},"TeX":{"extensions":["AMSmath.js","AMSsymbols.js","noErrors.js","noUndefined.js"]},"HTML-CSS":{"availableFonts":["TeX"]}});
+        </script>
+        <script type="text/javascript" async src="file:////home/markmiller/.vscode-insiders/extensions/shd101wyy.markdown-preview-enhanced-0.6.0/node_modules/@shd101wyy/mume/dependencies/mathjax/MathJax.js" charset="UTF-8"></script>
+        
+      
+      
+      
+      
+      
+      
+      
+      
+      
+      <style>
+      pre {
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  direction: ltr;
+  text-align: left;
+  white-space: pre;
+  word-spacing: normal;
+  word-break: normal;
+  word-wrap: normal;
+  padding: 1em;
+  margin: .5em 0;
+  overflow: auto;
+  line-height: 1.5;
+  tab-size: 4;
+  hyphens: none;
+  color: #F8F8F2;
+  background-color: #323232 !important;
+  border: #515151;
+  border-radius: 3px;
+}
+pre[class*="language-"] {
+  padding: 1em;
+}
+code[class*="language-"] .token.comment,
+pre[class*="language-"] .token.comment,
+code[class*="language-"] .token.prolog,
+pre[class*="language-"] .token.prolog,
+code[class*="language-"] .token.doctype,
+pre[class*="language-"] .token.doctype,
+code[class*="language-"] .token.cdata,
+pre[class*="language-"] .token.cdata {
+  color: #75715E;
+}
+code[class*="language-"] .token.punctuation,
+pre[class*="language-"] .token.punctuation {
+  color: inherit;
+}
+code[class*="language-"] .namespace,
+pre[class*="language-"] .namespace {
+  opacity: .7;
+}
+code[class*="language-"] .token.property,
+pre[class*="language-"] .token.property,
+code[class*="language-"] .token.tag,
+pre[class*="language-"] .token.tag,
+code[class*="language-"] .token.boolean,
+pre[class*="language-"] .token.boolean,
+code[class*="language-"] .token.number,
+pre[class*="language-"] .token.number,
+code[class*="language-"] .token.function-name,
+pre[class*="language-"] .token.function-name,
+code[class*="language-"] .token.constant,
+pre[class*="language-"] .token.constant,
+code[class*="language-"] .token.symbol,
+pre[class*="language-"] .token.symbol,
+code[class*="language-"] .token.deleted,
+pre[class*="language-"] .token.deleted {
+  color: #AE81FF;
+}
+code[class*="language-"] .token.selector,
+pre[class*="language-"] .token.selector,
+code[class*="language-"] .token.attr-name,
+pre[class*="language-"] .token.attr-name,
+code[class*="language-"] .token.string,
+pre[class*="language-"] .token.string,
+code[class*="language-"] .token.char,
+pre[class*="language-"] .token.char,
+code[class*="language-"] .token.builtin,
+pre[class*="language-"] .token.builtin,
+code[class*="language-"] .token.inserted,
+pre[class*="language-"] .token.inserted {
+  color: #E6DB74;
+}
+code[class*="language-"] .token.entity,
+pre[class*="language-"] .token.entity {
+  color: #AE81FF;
+}
+code[class*="language-"] .token.url,
+pre[class*="language-"] .token.url {
+  color: #CCC;
+}
+code[class*="language-"] .token.operator,
+pre[class*="language-"] .token.operator {
+  color: #F92672;
+}
+code[class*="language-"] .token.atrule,
+pre[class*="language-"] .token.atrule,
+code[class*="language-"] .token.attr-value,
+pre[class*="language-"] .token.attr-value,
+code[class*="language-"] .token.keyword,
+pre[class*="language-"] .token.keyword {
+  color: #66D9EF;
+}
+code[class*="language-"] .token.function,
+pre[class*="language-"] .token.function {
+  color: #A6E22E;
+}
+code[class*="language-"] .token.class-name,
+pre[class*="language-"] .token.class-name {
+  color: #A6E22E;
+}
+code[class*="language-"] .token.regex,
+pre[class*="language-"] .token.regex {
+  color: #AE81FF;
+}
+code[class*="language-"] .token.important,
+pre[class*="language-"] .token.important,
+code[class*="language-"] .token.variable,
+pre[class*="language-"] .token.variable {
+  color: #A6E22E;
+}
+code[class*="language-"] .token.important,
+pre[class*="language-"] .token.important,
+code[class*="language-"] .token.bold,
+pre[class*="language-"] .token.bold {
+  font-weight: bold;
+}
+code[class*="language-"] .token.italic,
+pre[class*="language-"] .token.italic {
+  font-style: italic;
+}
+code[class*="language-"] .token.entity,
+pre[class*="language-"] .token.entity {
+  cursor: help;
+}
+
+/* highlight */
+pre[data-line] {
+  position: relative;
+  padding: 1em 0 1em 3em;
+}
+pre[data-line] .line-highlight-wrapper {
+  position: absolute;
+  top: 0;
+  left: 0;
+  background-color: transparent;
+  display: block;
+  width: 100%;
+}
+pre[data-line] .line-highlight {
+  position: absolute;
+  left: 0;
+  right: 0;
+  padding: inherit 0;
+  margin-top: 1em;
+  background: rgba(153, 122, 102, 0.08);
+  background: linear-gradient(to right, rgba(153, 122, 102, 0.1) 70%, rgba(153, 122, 102, 0));
+  pointer-events: none;
+  line-height: inherit;
+  white-space: pre;
+}
+pre[data-line] .line-highlight:before,
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-start);
+  position: absolute;
+  top: .4em;
+  left: .6em;
+  min-width: 1em;
+  padding: 0 .5em;
+  background-color: rgba(153, 122, 102, 0.4);
+  color: #f5f2f0;
+  font: bold 65%/1.5 sans-serif;
+  text-align: center;
+  vertical-align: .3em;
+  border-radius: 999px;
+  text-shadow: none;
+  box-shadow: 0 1px white;
+}
+pre[data-line] .line-highlight[data-end]:after {
+  content: attr(data-end);
+  top: auto;
+  bottom: .4em;
+}
+html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#EEFFFF;background-color:#263238;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#fff}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#9cffff}html body strong{color:#fff}html body del{color:#9cffff}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#82AAFF;text-decoration:none}html body a:hover{color:#abc6ff;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#9cffff;background-color:#364850;border-left:4px solid #475d69}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#475d69;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#fff}html body table td,html body table th{border:1px solid #475d69;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#fff;background-color:#364850;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#475d69;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#fff;border:1px solid #475d69;border-bottom:2px solid #3b4d56;padding:2px 4px;background-color:#364850;border-radius:3px}@media print{html body{background-color:#263238}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#fff;page-break-after:avoid}html body blockquote{color:#9cffff}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px + 2em)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+
+      </style>
+    </head>
+    <body for="html-export">
+      <div class="mume markdown-preview  ">
+      <h1 id="jmh-profiler-setup-async-profiler-and-perfasm">JMH Profiler Setup (Async-Profiler and Perfasm)</h1>
+<p>JMH ships with a number of built-in profiler options that have grown in number over time. The profiler system is also pluggable, allowing for &#x201C;after-market&#x201D; profiler implementations to be added on the fly.</p>
+<p>Many of these profilers, most often the ones that stay in the realm of Java, will work across platforms and architectures and do so right out of the box. Others may be targeted at a specific OS, though there is a good chance a similar profiler for other OS&#x2019;s may exist where possible. A couple of very valuable profilers also require additional setup and environment to either work fully or at all.</p>
+<ul>
+<li><a href="#jmh-profiler-setup-async-profiler-and-perfasm">JMH Profiler Setup (Async-Profiler and Perfasm)</a>
+<ul>
+<li><a href="#async-profiler">Async-Profiler</a>
+<ul>
+<li><a href="#install-async-profiler">Install async-profiler</a></li>
+<li><a href="#install-java-debug-symbols">Install Java Debug Symbols</a>
+<ul>
+<li><a href="#ubuntu">Ubuntu</a></li>
+<li><a href="#arch">Arch</a></li>
+</ul></li>
+</ul></li>
+<li><a href="#perfasm">Perfasm</a>
+<ul>
+<li><a href="#arch-1">Arch</a></li>
+<li><a href="#ubuntu-1">Ubuntu</a></li>
+</ul></li>
+</ul></li>
+</ul>
+<p><br> This guide will cover setting up both the async-profiler and the Perfasm profiler. Currently, we roughly cover two Linux family trees, but much of the information can be extrapolated or help point in the right direction for other systems.</p>
+<table>
+<tbody><tr>
+<td>
+<b>Path 1: Arch, Manjaro, etc</b>
+</td>
+<td>
+<b>Path 2: Debian, Ubuntu, etc</b>
+</td>
+</tr><tr>
+<td>
+<img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"> <img src="https://user-images.githubusercontent.com/448788/137563722-665de88f-46a4-4939-88b0-3f96e56989ea.png">
+</td><td>
+<img src="https://user-images.githubusercontent.com/448788/137563909-6c2d2729-2747-47a0-b2bd-f448a958b5be.png"> <img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png">
+</td>
+</tr>
+</tbody></table>
+<p><br></p>
+<p>If you run <code>jmh.sh</code> with the <code>-lprof</code> argument, it will make an attempt to only list the profilers that it detects will work in your particular environment.</p>
+<p>You should do this first to see where you stand.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell">./jmh.sh -lprof</pre>
+</div>
+<p><br></p>
+<p>In our case, we will start with very <strong>minimal</strong> Arch and Ubuntu clean installations, and so we already know there is <em><strong>no chance</strong></em> that async-profiler or Perfasm are going to run.</p>
+<p>In fact, first we have to install a few project build requirements before thinking too much about JMH profiler support.</p>
+<p>We will run on <strong>Arch/Manjaro</strong>, but there should not be any difference than on <strong>Debian/Ubuntu</strong> for this stage.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 5px 10px 10px;padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">sudo</span> pacman -Syu <span class="token function">wget</span> jdk-openjdk11</pre>
+</div>
+<p><br></p>
+<p>Here we give <strong>async-profiler</strong> a try on <strong>Arch</strong> anyway and observe the failure indicating that we need to obtain the async-profiler library and put it in the correct location at a minimum.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137607441-f083e1fe-b3e5-4326-a9ca-2109c9cef985.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell">./jmh.sh BenchMark -prof async</pre>
+<pre>   <img src="https://user-images.githubusercontent.com/448788/137534191-01c2bc7a-5c1f-42a2-8d66-a5d1a5280db4.png">  Profilers failed to initialize, exiting.
+   
+    Unable to load async-profiler. Ensure asyncProfiler library is on LD_LIBRARY_PATH (Linux)
+    DYLD_LIBRARY_PATH (Mac OS), or -Djava.library.path.
+
+    Alternatively, point to explicit library location with: &apos;-prof async:libPath={path}&apos;
+
+    no asyncProfiler in java.library.path: [/usr/java/packages/lib, /usr/lib64, /lib64, /lib, /usr/lib]
+    </pre>
+</div>
+<p><br></p>
+<h3 id="async-profiler">Async-Profiler</h3>
+<h4 id="install-async-profiler">Install async-profiler</h4>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">wget</span> -c https://github.com/jvm-profiling-tools/async-profiler/releases/download/v2.5/async-profiler-2.5-linux-x64.tar.gz -O - <span class="token operator">|</span> <span class="token function">tar</span> -xz
+<span class="token function">sudo</span> <span class="token function">mkdir</span> -p /usr/java/packages/lib
+<span class="token function">sudo</span> <span class="token function">cp</span> async-profiler-2.5-linux-x64/build/* /usr/java/packages/lib</pre>
+</div>
+<p><br></p>
+<p>That should work out better, but there is still an issue that will prevent a successful profiling run. async-profiler relies on Linux&#x2019;s perf, and in any recent Linux kernel, perf is restricted from doing its job without some configuration loosening.</p>
+<p>The following changes will persist across restarts, and that is likely how you should leave things.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<pre class="text language-text language-zsh" data-role="codeBlock" data-info="zsh"><code>sudo sysctl -w kernel.kptr_restrict=0
+sudo sysctl -w kernel.perf_event_paranoid=1</code></pre>
+</div>
+<p><br></p>
+<p>Now we <strong>should</strong> see some success:</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell">./jmh.sh FuzzyQuery -prof async:output<span class="token operator">=</span>flamegraph</pre>
+</div>
+<p><br></p>
+<p>But you will also find an important <em>warning</em> if you look closely at the logs.</p>
+<p><br></p>
+<p><img src="https://user-images.githubusercontent.com/448788/137613526-a188ff03-545c-465d-928d-bc433d2d204f.png"> <span style="color: yellow; margin-left: 5px;">[WARN]</span> <code>Install JVM debug symbols to improve profile accuracy</code></p>
+<p><br></p>
+<p>We do not want <strong>debug symbols</strong> stripped from Java for the best experience.</p>
+<p>And it also turns out that if we use async-profiler&#x2019;s <strong>alloc</strong> option to sample and create flamegraphs for heap usage, the <strong>debug</strong> symbols are <em>required</em>.</p>
+<p><br></p>
+<h4 id="install-java-debug-symbols">Install Java Debug Symbols</h4>
+<table style="width:6%;">
+<colgroup>
+<col style="width: 5%">
+</colgroup>
+<tbody>
+<tr class="odd">
+<td>##### Ubuntu {#ubuntu } <img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png"></td>
+</tr>
+<tr class="even">
+<td><br></td>
+</tr>
+<tr class="odd">
+<td></td>
+</tr>
+<tr class="even">
+<td><img src="https://user-images.githubusercontent.com/448788/137610566-883825b7-e66c-4d8b-a6a5-61542bc08d23.png"></td>
+</tr>
+<tr class="odd">
+<td><code>{.text data-role=&quot;codeBlock&quot; data-info=&quot;Shell&quot; data-parsed-info=&quot;{&amp;quot;language&amp;quot;:&amp;quot;Shell&amp;quot;,&amp;quot;attributes&amp;quot;:{}}&quot; data-normalized-info=&quot;{&amp;quot;language&amp;quot;:&amp;quot;shell&amp;quot;,&amp;quot;attributes&amp;quot;:{}}&quot;} sudo apt update sudo apt upgrade sudo apt install openjdk-11-dbg</code></td>
+</tr>
+</tbody>
+</table>
+<h5 id="arch">Arch</h5>
+<p><img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"></p>
+<p><br></p>
+<p>On the <strong>Arch</strong> side we will rebuild the Java 11 package, but turn off the option that strips debug symbols. Often, large OS package and Java repositories originated in SVN and can be a bit a of a bear to wrestle with git about for just a fraction of the repository, we do so GitHub API workaround efficiency.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">sudo</span> pacman -Syu dkms base-devel linux-headers dkms <span class="token function">git</span> <span class="token function">vi</span> jq --needed --noconfirm
+
+<span class="token function">curl</span> -sL <span class="token string">&quot;https://api.github.com/repos/archlinux/svntogit-packages/contents/java11-openjdk/repos/extra-x86_64&quot;</span> <span class="token punctuation">\</span>
+<span class="token operator">|</span> jq -r <span class="token string">&apos;.[] | .download_url&apos;</span> <span class="token operator">|</span> <span class="token function">xargs</span> -n1 <span class="token function">wget</span></pre>
+</div>
+<p><br></p>
+<p>Now we need to change that option in PKGBUILD. Choose your favorite editor. (nano, vim, emacs, ne, nvim, tilde etc)</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">vi</span> PKGBUILD</pre>
+</div>
+<p><br></p>
+<p>Insert a single option line:</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<pre class="text language-text language-diff" data-role="codeBlock" data-info="Diff">arch=(&apos;x86_64&apos;)
+url=&apos;https://openjdk.java.net/&apos;
+license=(&apos;custom&apos;)
+<span class="token inserted-sign inserted"><span class="token prefix inserted">+</span><span class="token line">   options=(&apos;debug&apos; &apos;!strip&apos;)
+</span></span>makedepends=(&apos;java-environment&gt;=10&apos; &apos;java-environment&lt;12&apos; &apos;cpio&apos; &apos;unzip&apos; &apos;zip&apos; &apos;libelf&apos; &apos;libcups&apos; &apos;libx11&apos; &apos;libxrender&apos; &apos;libxtst&apos; &apos;libxt&apos; &apos;libxext&apos; &apos;libxrandr&apos; &apos;alsa-lib&apos; &apos;pandoc&apos;</pre>
+</div>
+<p><br></p>
+<p>Then build and install. (<code>-s: --syncdeps -i: --install  -f: --force</code>)</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell">makepkg -sif</pre>
+</div>
+<p><br></p>
+<p>When that is done, if everything went well, we should be able to succesfully run asyncprofiler in alloc mode to generate a flamegreaph based on memory rather than cpu.</p>
+<p><br></p>
+<h2 id="perfasm">Perfasm</h2>
+<p>Perfasm will run perf to collect hardware counter infromation (cycles by default) and it will also pass an argument to Java to cause it to log assembly output (amoung other things). The performance data from perf is married with the assembly from the Java output log and Perfasm then does it&#x2019;s thing. Java generally cannot output assembly as shipped however, so now we must install <strong>hsdis</strong> to allow for <code>-XX+PrintAssembly</code></p>
+<hr>
+<h3 id="arch-1">Arch</h3>
+<p><img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"></p>
+<p><br></p>
+<p>If you have <code>yay</code> or another <strong>AUR</strong> helper available, or if you have the AUR enabled in your package manager, simply install <code>java11-openjdk-hdis</code></p>
+<p>If you do not have simple access to <strong>AUR</strong>, set it up or just grab the package manually:</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">wget</span> -c https://aur.archlinux.org/cgit/aur.git/snapshot/java11-openjdk-hsdis.tar.gz -O - <span class="token operator">|</span> <span class="token function">tar</span> -xz
+<span class="token builtin class-name">cd</span> java11-openjdk-hsdis/
+makepkg -si</pre>
+</div>
+<p><br></p>
+<hr>
+<h3 id="ubuntu-1">Ubuntu</h3>
+<p><img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png"></p>
+<p><br></p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610566-883825b7-e66c-4d8b-a6a5-61542bc08d23.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">sudo</span> <span class="token function">apt</span> update
+<span class="token function">sudo</span> <span class="token function">apt</span> -y upgrade
+<span class="token function">sudo</span> <span class="token function">apt</span> -y <span class="token function">install</span> openjdk-11-jdk <span class="token function">git</span> <span class="token function">wget</span> jq</pre>
+</div>
+<p><br></p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610566-883825b7-e66c-4d8b-a6a5-61542bc08d23.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">curl</span> -sL <span class="token string">&quot;https://api.github.com/repos/openjdk/jdk11/contents/src/utils/hsdis&quot;</span> <span class="token operator">|</span> jq -r <span class="token string">&apos;.[] | .download_url&apos;</span> <span class="token operator">|</span> <span class="token function">xargs</span> -n1 <span class="token function">wget</span>
+
+<span class="token comment"># Newer versions of binutils don&apos;t appear to compile, must use 2.28 for JDK 11</span>
+<span class="token function">wget</span> http://ftp.heanet.ie/mirrors/ftp.gnu.org/gnu/binutils/binutils-2.28.tar.gz
+<span class="token function">tar</span> xzvf binutils-2.28.tar.gz
+<span class="token function">make</span> <span class="token assign-left variable">BINUTILS</span><span class="token operator">=</span>binutils-2.28 <span class="token assign-left variable">ARCH</span><span class="token operator">=</span>amd64</pre>
+</div>
+
+      </div>
+      
+      
+    
+    
+    
+    
+    
+    
+    
+    
+  
+    </body></html>
