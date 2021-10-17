@@ -222,22 +222,21 @@ html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-
 </ul></li>
 </ul>
 <p><br> This guide will cover setting up both the async-profiler and the Perfasm profiler. Currently, we roughly cover two Linux family trees, but much of the information can be extrapolated or help point in the right direction for other systems.</p>
+<p><br></p>
 <table>
-<tbody><tr>
-<td>
-<b>Path 1: Arch, Manjaro, etc</b>
-</td>
-<td>
-<b>Path 2: Debian, Ubuntu, etc</b>
-</td>
-</tr><tr>
-<td>
-<img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"> <img src="https://user-images.githubusercontent.com/448788/137563722-665de88f-46a4-4939-88b0-3f96e56989ea.png">
-</td><td>
-<img src="https://user-images.githubusercontent.com/448788/137563909-6c2d2729-2747-47a0-b2bd-f448a958b5be.png"> <img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png">
-</td>
+<thead>
+<tr class="header">
+<th style="text-align: center;"><b>Path 1: Arch, Manjaro, etc</b></th>
+<th style="text-align: center;"><b>Path 2: Debian, Ubuntu, etc</b></th>
 </tr>
-</tbody></table>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: center;"><img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"><img src="https://user-images.githubusercontent.com/448788/137563722-665de88f-46a4-4939-88b0-3f96e56989ea.png"></td>
+<td style="text-align: center;"><img src="https://user-images.githubusercontent.com/448788/137563909-6c2d2729-2747-47a0-b2bd-f448a958b5be.png"><img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png"></td>
+</tr>
+</tbody>
+</table>
 <p><br></p>
 <p>If you run <code>jmh.sh</code> with the <code>-lprof</code> argument, it will make an attempt to only list the profilers that it detects will work in your particular environment.</p>
 <p>You should do this first to see where you stand.</p>
@@ -268,7 +267,6 @@ html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-
     no asyncProfiler in java.library.path: [/usr/java/packages/lib, /usr/lib64, /lib64, /lib, /usr/lib]
     </pre>
 </div>
-<p><br></p>
 <h3 id="async-profiler">Async-Profiler</h3>
 <h4 id="install-async-profiler">Install async-profiler</h4>
 <div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
@@ -299,31 +297,19 @@ sudo sysctl -w kernel.perf_event_paranoid=1</code></pre>
 <p>And it also turns out that if we use async-profiler&#x2019;s <strong>alloc</strong> option to sample and create flamegraphs for heap usage, the <strong>debug</strong> symbols are <em>required</em>.</p>
 <p><br></p>
 <h4 id="install-java-debug-symbols">Install Java Debug Symbols</h4>
-<table style="width:6%;">
-<colgroup>
-<col style="width: 5%">
-</colgroup>
-<tbody>
-<tr class="odd">
-<td>##### Ubuntu {#ubuntu } <img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png"></td>
-</tr>
-<tr class="even">
-<td><br></td>
-</tr>
-<tr class="odd">
-<td></td>
-</tr>
-<tr class="even">
-<td><img src="https://user-images.githubusercontent.com/448788/137610566-883825b7-e66c-4d8b-a6a5-61542bc08d23.png"></td>
-</tr>
-<tr class="odd">
-<td><code>{.text data-role=&quot;codeBlock&quot; data-info=&quot;Shell&quot; data-parsed-info=&quot;{&amp;quot;language&amp;quot;:&amp;quot;Shell&amp;quot;,&amp;quot;attributes&amp;quot;:{}}&quot; data-normalized-info=&quot;{&amp;quot;language&amp;quot;:&amp;quot;shell&amp;quot;,&amp;quot;attributes&amp;quot;:{}}&quot;} sudo apt update sudo apt upgrade sudo apt install openjdk-11-dbg</code></td>
-</tr>
-</tbody>
-</table>
+<hr>
+<h5 id="ubuntu">Ubuntu</h5>
+<p><img src="https://user-images.githubusercontent.com/448788/137563908-738a7431-88db-47b0-96a4-baaed7e5024b.png"></p>
+<p>Grab the debug package of OpenJdk using your package manager for the correct Java version.</p>
+<div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
+<p><img src="https://user-images.githubusercontent.com/448788/137610566-883825b7-e66c-4d8b-a6a5-61542bc08d23.png"></p>
+<pre class="text language-text language-shell" data-role="codeBlock" data-info="Shell"><span class="token function">sudo</span> <span class="token function">apt</span> update
+<span class="token function">sudo</span> <span class="token function">apt</span> upgrade
+<span class="token function">sudo</span> <span class="token function">apt</span> <span class="token function">install</span> openjdk-11-dbg</pre>
+</div>
+<hr>
 <h5 id="arch">Arch</h5>
 <p><img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"></p>
-<p><br></p>
 <p>On the <strong>Arch</strong> side we will rebuild the Java 11 package, but turn off the option that strips debug symbols. Often, large OS package and Java repositories originated in SVN and can be a bit a of a bear to wrestle with git about for just a fraction of the repository, we do so GitHub API workaround efficiency.</p>
 <div style="z-index: 8;  background-color: #364850; border-style: solid; border-width: 1px; border-color: #3b4d56;border-radius: 0px; margin: 0px 5px 3px 10px; padding-bottom: 1px;padding-top: 5px;" data-code-wrap="true">
 <p><img src="https://user-images.githubusercontent.com/448788/137610116-eff6d0b7-e862-40fb-af04-452aaf585387.png"></p>
@@ -357,7 +343,7 @@ license=(&apos;custom&apos;)
 <p>When that is done, if everything went well, we should be able to succesfully run asyncprofiler in alloc mode to generate a flamegreaph based on memory rather than cpu.</p>
 <p><br></p>
 <h2 id="perfasm">Perfasm</h2>
-<p>Perfasm will run perf to collect hardware counter infromation (cycles by default) and it will also pass an argument to Java to cause it to log assembly output (amoung other things). The performance data from perf is married with the assembly from the Java output log and Perfasm then does it&#x2019;s thing. Java generally cannot output assembly as shipped however, so now we must install <strong>hsdis</strong> to allow for <code>-XX+PrintAssembly</code></p>
+<p>Perfasm will run perf to collect hardware counter infromation (cycles by default) and it will also pass an argument to Java to cause it to log assembly output (amoung other things). The performance data from perf is married with the assembly from the Java output log and Perfasm then does its thing to produce human parsable output. Java generally cannot output assembly as shipped however, so now we must install <strong>hsdis</strong> to allow for <code>-XX+PrintAssembly</code></p>
 <hr>
 <h3 id="arch-1">Arch</h3>
 <p><img src="https://user-images.githubusercontent.com/448788/137563725-0195a732-da40-4c8b-a5e8-fd904a43bb79.png"></p>
